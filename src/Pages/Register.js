@@ -10,7 +10,6 @@ import * as Yup from "yup";
 import axios from "axios";
 import { toast } from 'react-toastify';
 import '../css/myStyle.css';
-import Footer from "../Components/Footer";
 const Register = () => {
     const [role, setRole] = useState('');
     const[roleId,setRoleId]=useState(0);
@@ -28,9 +27,9 @@ const Register = () => {
         
     }
     const validationSchema = Yup.object().shape({
-        "firstName": Yup.string().min(3, "First Name Must be 3 characters long...").required("Please Enter Your First Name"),
-        "lastName": Yup.string().min(3, "Last Name must be 3 characters long...").required('Please Enter Your Last Name'),
-        "email": Yup.string().email("Please Enter Valid Email").required('please Enter your Email ID'),
+        "firstName": Yup.string().min(3, "First Name Must be 3 characters long...").max(10).trim('The firstName cannot include leading and trailing spaces').required("Please Enter Your First Name"),
+        "lastName": Yup.string().min(3, "Last Name must be 3 characters long...").max(10).trim('The lastName cannot include leading and trailing spaces').required('Please Enter Your Last Name'),
+        "email": Yup.string().email("Please Enter Valid Email").trim('The email cannot include leading and trailing spaces').required('please Enter your Email ID'),
         "password": Yup.string().min(8, "Password Must be 8 Characters Long...").matches(/[a-zA-Z]/, 'Password Contains atleast one character').required('Please Enter Your Password'),
         "confirmPd": Yup.string().required('Please Enter Confirm Password').oneOf([Yup.ref('password'), null], 'Passwords must match'),
     
@@ -114,7 +113,7 @@ const Register = () => {
                                             <div className='label'>First Name* </div>
                                             <TextField
                                                 type='text'
-                                                placeholder="FirstName"
+                                                placeholder="First Name"
                                                 name="firstName"
                                                 style={{ width: '355px' }}
                                                 onBlur={handleBlur}
@@ -130,7 +129,7 @@ const Register = () => {
                                             <div className='label'>Last Name* </div>
                                             <TextField
                                                 type='text'
-                                                placeholder="LastName"
+                                                placeholder="Last Name"
                                                 name="lastName"
                                                 style={{ width: '355px' }}
                                                 onBlur={handleBlur}
@@ -239,7 +238,7 @@ const Register = () => {
 
                 </div>
             </div>
-            <Footer />
+         
 
 
         </>);

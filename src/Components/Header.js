@@ -2,17 +2,17 @@ import { AppBar } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import siteLogo from '../assets/Tatvasoftlogo.svg';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useCartContext } from '../contexts/cartContext';
 import SearchIcon from '@mui/icons-material/Search';
+import UpdateNav from './UpdateNav';
+
 import '../css/header.css';
 import { Link} from 'react-router-dom';
-
-
-
+import { useAuthContext } from '../contexts/auth';
 const Header = () => {
+    const authContext=useAuthContext();
     const open = false;
-    const [query, setQuery] = useState('');
-    const [bookList, setBookList] = useState('');
-    const [openSearchResult, setOpenSearchResult] = useState('');
+    const cartContext=useCartContext();
 
     const LinkStyle = {
         textDecoration: 'none',
@@ -53,16 +53,13 @@ const Header = () => {
                 </div>
                 
                     <div className='leftWrapper'>
-                        <div >
-                            <Link to='/login' style={LinkStyle}>Login</Link>
-                            <span className='pipe'></span>
-                            <Link to='/register' style={LinkStyle} >Register</Link>
-                        </div>
-                        <Link to='/cart' style={cart}>
-                            <ShoppingCartIcon style={{ color: "#f14d54" }} />
-                            <span style={{ color: "#f14d54" }}>0</span>
-                            Cart
-                        </Link>
+                    <UpdateNav/>
+                    <Link to='/cart' style={cart}>
+                    <ShoppingCartIcon style={{ color: "#f14d54" }} />
+                    <span style={{ color: "#f14d54" }}>{cartContext.cartData.length}</span>
+                    Cart
+                   </Link>
+        
                     </div>
             </div>
             <div className='searchWrapper'>

@@ -3,17 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Button from '@mui/material/Button';
 import { TextField } from "@mui/material";
-import { Avatar } from "@mui/material";
-import { Popover } from "@mui/material";
-import LogoutIcon from '@mui/icons-material/Logout';
 import { Formik } from 'formik';
 import * as Yup from "yup";
-import authService from '../service/auth.service';
+import { loginContext } from '../contexts/LoginContext';
+import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useContext } from 'react';
+import { useAuthContext } from '../contexts/auth';
 const LoginUI = () => {
- 
+  const authContext = useAuthContext();
+  const { login, setLogin } = useContext(loginContext);
   const [email, setEmail] = useState("");
-  const[password,setPassword]=useState('');
+  const [password, setPassword] = useState('');
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const Navigate = useNavigate('');
@@ -23,23 +24,32 @@ const LoginUI = () => {
   }
   const validationSchema = Yup.object().shape({
     "email": Yup.string().email("Please Enter Valid Email").required("Please Enter Email"),
-    "password": Yup.string().min(8,"Password Must be a 8 Characters Long").matches(/[a-zA-Z]/,'Password Contains atleast one character').required("Please Enter Password")
+    "password": Yup.string().min(8, "Password Must be a 8 Characters Long").matches(/[a-zA-Z]/, 'Password Contains atleast one character').required("Please Enter Password")
   });
-  const onFormSubmit = (values, { setSubmitting }) => {
-    authService.login(values).then((res)=>{
-      delete res._id;
-      delete res._v;
-      // authContext.setUser(res);
-      Navigate('/');
-      toast.success("Successfully Logged in...")
-    });
-    Navigate('/');
-  }
+  const onFormSubmit = async (values) => {
+    const getData = {
+      'email': values.email,
+      'password': values.password
+    }
+    console.log("On Login Data:", values)
+    const res = await axios.post('https://book-e-sell-node-api.vercel.app/api/user/login', getData);
+    if (res.status === 200) {
+      console.log(res.data.result);
+      delete res.data.result._id;
+      delete res.data.result.__v;
+      toast.success('Login Successfully');
+      console.log(res.data.result);
+      authContext.setUser(res.data.result);
+      setLogin(true);
+      Navigate('/booklist');
+    }
+  };
+
   const NavigateHome = () => {
     Navigate('/');
     // alert('The login button is clicked...')
     console.log("Email:", email);
-    console.log("Password",password);
+    console.log("Password", password);
   }
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -52,39 +62,12 @@ const LoginUI = () => {
   };
   return (
     <>
-     
-      <div style={{ fontSize: '20px', color: '#414141',fontWeight:'bold'}}>Registered Customers</div>
+
+      <div style={{ fontSize: '20px', color: '#414141', fontWeight: 'bold' }}>Registered Customers</div>
       <hr />
       <div style={{ marginBottom: 10 }}></div>
       <p className='paraStyle'>If you have an account with us,Please log in.</p>
       <div style={{ marginBottom: 10 }}></div>
-      {/* <div style={{
-        padding: 5,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center'
-      }}
-        onClick={handleClick}>
-        <Avatar sx={{ bgcolor: 'blue' }}>DP</Avatar>
-        <span>Dhruv Patel</span>
-      </div>
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        <Button variant="contained" onClick={NavigateHome}>LOGOUT</Button>
-        <LogoutIcon onClick={NavigateHome} />
-      </Popover> */}
-
 
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onFormSubmit}>
         {({ value, errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit }) => {
@@ -130,7 +113,7 @@ const LoginUI = () => {
                 </div>
               </div>
               <div style={{ marginBottom: '60px' }}></div>
-              <Button variant="contained" type="submit" disabled={isSubmitting} sx={{width:100}}>Login</Button>
+              <Button variant="contained" type="submit" disabled={isSubmitting} sx={{ width: 100 }}>Login</Button>
             </form>
           );
         }
